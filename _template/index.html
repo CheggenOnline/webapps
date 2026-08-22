@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+  APP TEMPLATE — copy this file to <slug>/index.html and build inside it.
+  Read ../CONVENTIONS.md first. Checklist:
+    [ ] Replace every APP_NAME / APP_SLUG / APP_DESCRIPTION placeholder
+    [ ] Keep the NS prefix in sync with the folder name
+    [ ] Add the entry to ../apps.json
+    [ ] Relative paths only. No CDNs. No service worker. No secrets.
+-->
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>APP_NAME</title>
+<meta name="description" content="APP_DESCRIPTION">
+<meta name="theme-color" content="#0b0e14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="APP_NAME">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0e14;
+    --surface: #161b26;
+    --line: #262d3d;
+    --text: #e9edf5;
+    --muted: #8d97ad;
+    --accent: #6ea8fe;
+    --tap: 44px;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding:
+      calc(env(safe-area-inset-top) + 18px)
+      calc(env(safe-area-inset-right) + 16px)
+      calc(env(safe-area-inset-bottom) + 32px)
+      calc(env(safe-area-inset-left) + 16px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .back {
+    min-width: var(--tap);
+    min-height: var(--tap);
+    display: grid;
+    place-items: center;
+    flex: none;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .back:active { color: var(--text); }
+
+  h1 { margin: 0; font-size: 1.35rem; font-weight: 650; letter-spacing: -0.02em; }
+
+  .card {
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  button {
+    min-height: var(--tap);
+    padding: 0 18px;
+    font: inherit;
+    font-weight: 600;
+    color: #0b0e14;
+    background: var(--accent);
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { opacity: .85; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <a class="back" href="../" aria-label="Tilbake til Webapps">&#8592;</a>
+    <h1>APP_NAME</h1>
+  </div>
+
+  <div class="card">
+    <p>Innhold her.</p>
+    <button type="button" id="demo">Trykk</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Shared origin — every key MUST be namespaced. See ../CONVENTIONS.md §3.
+  var NS = "webapps.APP_SLUG.";
+  function save(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} }
+  function load(k, d) {
+    try { var v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); }
+    catch (e) { return d; }
+  }
+
+  var count = load("count", 0);
+  var btn = document.getElementById("demo");
+  btn.textContent = "Trykk (" + count + ")";
+  btn.addEventListener("click", function () {
+    count += 1;
+    save("count", count);
+    btn.textContent = "Trykk (" + count + ")";
+  });
+})();
+</script>
+</body>
+</html>

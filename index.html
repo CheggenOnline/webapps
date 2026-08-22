@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Webapps</title>
+<meta name="description" content="Startside for alle webapper i CheggenOnline/webapps.">
+<meta name="theme-color" content="#0b0e14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Webapps">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+<!-- iOS home-screen icon requires a real PNG; see CONVENTIONS.md §11. -->
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0e14;
+    --bg-2: #11151f;
+    --surface: #161b26;
+    --surface-hi: #1d2331;
+    --line: #262d3d;
+    --text: #e9edf5;
+    --muted: #8d97ad;
+    --accent: #6ea8fe;
+    --radius: 18px;
+    --tap: 44px;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(1000px 520px at 12% -12%, #1b2540 0%, transparent 62%),
+      radial-gradient(760px 420px at 108% 4%, #1d1a35 0%, transparent 58%);
+    background-attachment: fixed;
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding:
+      calc(env(safe-area-inset-top) + 22px)
+      calc(env(safe-area-inset-right) + 16px)
+      calc(env(safe-area-inset-bottom) + 40px)
+      calc(env(safe-area-inset-left) + 16px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+
+  header { margin-bottom: 20px; }
+
+  h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  h1 .count {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+
+  /* ---------- controls ---------- */
+
+  .controls { margin: 18px 0 16px; }
+
+  .search {
+    width: 100%;
+    height: var(--tap);
+    padding: 0 14px;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    outline: none;
+    appearance: none;
+  }
+  .search::placeholder { color: #6c768d; }
+  .search:focus { border-color: #3d4a6b; background: var(--surface-hi); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .chip {
+    min-height: 34px;
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip[aria-pressed="true"] {
+    color: #0b0e14;
+    background: var(--text);
+    border-color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ---------- tiles ---------- */
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    min-height: 132px;
+    padding: 14px;
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .tile::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--tile-accent, var(--accent));
+    opacity: .85;
+  }
+  .tile:active { transform: scale(.975); background: var(--surface-hi); }
+  @media (hover: hover) {
+    .tile:hover { border-color: #3a445e; background: var(--surface-hi); }
+  }
+  .tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .badge {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    line-height: 1;
+    border-radius: 12px;
+    /* Fallback first for browsers without color-mix(). */
+    background: #1f2637;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--tile-accent, var(--accent)) 20%, transparent);
+    border-color: color-mix(in srgb, var(--tile-accent, var(--accent)) 34%, transparent);
+  }
+
+  .text { display: block; }
+
+  .name {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .tagline {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+
+  .foot {
+    display: block;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 0.68rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #6c768d;
+  }
+
+  /* ---------- states ---------- */
+
+  .note {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .note a { color: var(--accent); }
+
+  .hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--muted);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .hint button {
+    flex: none;
+    min-width: var(--tap);
+    min-height: 32px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  footer {
+    margin-top: 30px;
+    font-size: 0.75rem;
+    color: #5f6982;
+  }
+  footer a { color: #7f8aa3; }
+
+  @media (min-width: 600px) {
+    body { padding-top: calc(env(safe-area-inset-top) + 44px); }
+    h1 { font-size: 1.9rem; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Webapps <span class="count" id="count"></span></h1>
+    <p class="sub">Alle appene på ett sted. Legg siden til på hjemskjermen.</p>
+  </header>
+
+  <div id="hint" hidden class="hint">
+    <span><strong>Tips:</strong> Del &rarr; «Legg til på Hjem-skjerm» gir deg dette som en app-ikon uten nettleserramme.</span>
+    <button type="button" id="hintClose">Skjul</button>
+  </div>
+
+  <div class="controls">
+    <input id="search" class="search" type="search" inputmode="search"
+           placeholder="Søk i apper…" autocomplete="off" spellcheck="false" aria-label="Søk i apper">
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <ul class="grid" id="grid"></ul>
+  <div id="state"></div>
+
+  <footer>
+    Kilde: <a href="https://github.com/CheggenOnline/webapps">github.com/CheggenOnline/webapps</a>
+    &middot; nye apper legges til i <code>apps.json</code>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // All apps on cheggenonline.github.io share one origin, so every storage key
+  // MUST be namespaced. See CONVENTIONS.md.
+  var NS = "webapps.launcher.";
+  var store = {
+    get: function (k) { try { return localStorage.getItem(NS + k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(NS + k, v); } catch (e) { /* private mode */ } }
+  };
+
+  var grid = document.getElementById("grid");
+  var stateEl = document.getElementById("state");
+  var countEl = document.getElementById("count");
+  var searchEl = document.getElementById("search");
+  var chipsEl = document.getElementById("chips");
+
+  var apps = [];
+  var activeTag = null;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function render() {
+    var q = searchEl.value.trim().toLowerCase();
+    var list = apps.filter(function (a) {
+      if (activeTag && (a.tags || []).indexOf(activeTag) === -1) return false;
+      if (!q) return true;
+      var hay = [a.name, a.tagline, a.slug].concat(a.tags || []).join(" ").toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+
+    countEl.textContent = list.length === apps.length
+      ? apps.length + " apper"
+      : list.length + " av " + apps.length;
+
+    if (!list.length) {
+      grid.innerHTML = "";
+      stateEl.innerHTML = '<div class="note">Ingen treff.</div>';
+      return;
+    }
+    stateEl.innerHTML = "";
+
+    grid.innerHTML = list.map(function (a) {
+      var accent = /^#[0-9a-fA-F]{3,8}$/.test(a.accent || "") ? a.accent : "#6ea8fe";
+      var where = a.location === "local" ? "i webapps" : "eget repo";
+      return '<li>'
+        + '<a class="tile" href="' + esc(a.url) + '" style="--tile-accent:' + accent + '">'
+        + '<span class="badge" aria-hidden="true">' + esc(a.icon || "▦") + '</span>'
+        + '<span class="text">'
+        +   '<span class="name">' + esc(a.name) + '</span>'
+        +   '<span class="tagline">' + esc(a.tagline || "") + '</span>'
+        + '</span>'
+        + '<span class="foot">' + esc(where) + '</span>'
+        + '</a></li>';
+    }).join("");
+  }
+
+  function buildChips() {
+    var counts = {};
+    apps.forEach(function (a) {
+      (a.tags || []).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    });
+    var tags = Object.keys(counts).filter(function (t) { return counts[t] > 1; }).sort();
+    if (!tags.length) return;
+
+    chipsEl.innerHTML = ['<button class="chip" type="button" aria-pressed="true" data-tag="">Alle</button>']
+      .concat(tags.map(function (t) {
+        return '<button class="chip" type="button" aria-pressed="false" data-tag="' + esc(t) + '">' + esc(t) + '</button>';
+      })).join("");
+
+    chipsEl.addEventListener("click", function (ev) {
+      var btn = ev.target.closest(".chip");
+      if (!btn) return;
+      activeTag = btn.dataset.tag || null;
+      Array.prototype.forEach.call(chipsEl.children, function (c) {
+        c.setAttribute("aria-pressed", String(c === btn));
+      });
+      render();
+    });
+  }
+
+  searchEl.addEventListener("input", render);
+
+  // Home-screen hint: shown once, in the browser only.
+  var standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if (!standalone && !store.get("hintDismissed")) {
+    var hint = document.getElementById("hint");
+    hint.hidden = false;
+    document.getElementById("hintClose").addEventListener("click", function () {
+      hint.hidden = true;
+      store.set("hintDismissed", "1");
+    });
+  }
+
+  // Registry is fetched fresh: GitHub Pages caches aggressively and a stale
+  // apps.json is the difference between "new app appeared" and "nothing happened".
+  fetch("./apps.json?v=" + Date.now(), { cache: "no-store" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      apps = Array.isArray(data.apps) ? data.apps.filter(function (a) { return a && a.url && a.name; }) : [];
+      if (!apps.length) {
+        stateEl.innerHTML = '<div class="note">Ingen apper registrert ennå. Legg den første inn i <code>apps.json</code>.</div>';
+        countEl.textContent = "";
+        return;
+      }
+      buildChips();
+      render();
+    })
+    .catch(function (err) {
+      countEl.textContent = "";
+      stateEl.innerHTML = '<div class="note">Klarte ikke å laste <code>apps.json</code> ('
+        + esc(err.message) + '). Sjekk filen i <a href="https://github.com/CheggenOnline/webapps">repoet</a>.</div>';
+    });
+})();
+</script>
+</body>
+</html>
