@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Travel — tester</title>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<main style="padding:24px 16px">
+  <div class="screen-head"><h1>Tolerant JSON-parser</h1></div>
+  <p class="sub">Bevisst ødelagte svar fra modellen. Et manglende krøllparentes skal aldri koste hele opptaket.</p>
+  <div id="out"><p class="center-pad">Kjører …</p></div>
+  <p style="margin-top:20px"><a class="btn ghost" href="./" style="text-decoration:none">Til appen</a></p>
+</main>
+<script type="module">
+import { run } from './js/parse.test.js';
+const { results, passed, failed } = run();
+const out = document.getElementById('out');
+out.innerHTML = '';
+const head = document.createElement('div');
+head.className = 'notice';
+head.style.borderColor = failed ? 'var(--danger)' : 'var(--ok)';
+head.textContent = `${passed} bestått, ${failed} feilet`;
+out.appendChild(head);
+const card = document.createElement('div');
+card.className = 'card';
+results.forEach((r) => {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const main = document.createElement('div');
+  main.className = 'row-main';
+  const t = document.createElement('div');
+  t.className = 'row-title';
+  t.textContent = (r.ok ? '✓ ' : '✕ ') + r.name;
+  t.style.color = r.ok ? '' : 'var(--danger)';
+  main.appendChild(t);
+  if (!r.ok) {
+    const sub = document.createElement('div');
+    sub.className = 'row-sub';
+    sub.textContent = (r.err || '') + ' fikk: ' + JSON.stringify(r.parsed && r.parsed.data);
+    main.appendChild(sub);
+  }
+  row.appendChild(main);
+  card.appendChild(row);
+});
+out.appendChild(card);
+</script>
+</body>
+</html>

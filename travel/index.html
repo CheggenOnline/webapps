@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Travel</title>
+<meta name="description" content="Fang opp planer som rotete tekst — appen gjør dem om til tidslinje, lister og oppslagsverk">
+<meta name="theme-color" content="#0b0e14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Travel">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+
+<header class="hdr" id="hdr">
+  <button type="button" class="trip-btn" id="tripBtn" aria-haspopup="menu" aria-expanded="false">
+    <span class="trip-name" id="tripName">Travel</span>
+    <span class="caret" aria-hidden="true">▾</span>
+  </button>
+  <button type="button" class="icon-btn" id="gearBtn" aria-label="Innstillinger">
+    <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5m7.43-2.53a7.9 7.9 0 0 0 0-1.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.6 7.6 0 0 0-1.68-.97l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54a7.6 7.6 0 0 0-1.68.97l-2.39-.96a.5.5 0 0 0-.6.22L2.42 8.81a.5.5 0 0 0 .12.64l2.03 1.58a7.9 7.9 0 0 0 0 1.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96a7.6 7.6 0 0 0 1.68.97l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54a7.6 7.6 0 0 0 1.68-.97l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64Z"/></svg>
+  </button>
+</header>
+
+<div class="strip" id="strip">
+  <div class="strip-line">
+    <button type="button" class="strip-primary" id="stripPrimary">
+      <span class="strip-dot" id="stripDot" aria-hidden="true"></span>
+      <span class="strip-text" id="stripText">Ingen tur valgt</span>
+    </button>
+    <button type="button" class="strip-toggle" id="stripToggle" aria-expanded="false" aria-label="Vis mer status">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 16 5.6 9.6 7 8.2l5 5 5-5 1.4 1.4Z"/></svg>
+    </button>
+  </div>
+  <div class="strip-more" id="stripMore" hidden></div>
+</div>
+
+<main id="screen" tabindex="-1"></main>
+
+<nav class="nav" id="nav" aria-label="Hovedmeny">
+  <button type="button" class="nav-btn" data-screen="timeline" aria-current="page">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 2h2v3h6V2h2v3h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2Zm12 8H5v10h14Z"/></svg>
+    <span>Tidslinje</span>
+  </button>
+  <button type="button" class="nav-btn" data-screen="lists">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M3 5h2v2H3Zm4 0h14v2H7Zm-4 6h2v2H3Zm4 0h14v2H7Zm-4 6h2v2H3Zm4 0h14v2H7Z"/></svg>
+    <span>Lister</span>
+  </button>
+  <button type="button" class="nav-btn nav-cap" data-screen="capture" aria-label="Fang opp">
+    <span class="cap-ring"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6Z"/></svg></span>
+    <span>Fang opp</span>
+  </button>
+  <button type="button" class="nav-btn" data-screen="vault">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m6 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8m0 2.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M9 17h6v2H9Z"/></svg>
+    <span>Oppslag</span>
+  </button>
+</nav>
+
+<div class="sheet-host" id="sheetHost" hidden></div>
+<div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

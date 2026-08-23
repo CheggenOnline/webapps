@@ -19,6 +19,31 @@ file is loaded automatically and that one is not.
 The launcher renders its tiles from `apps.json`. **Never hand-edit tile markup in
 `index.html`** — if a tile is wrong, the registry entry is wrong.
 
+## Landing your work — standing authorisation
+
+Christian has authorised this, and it overrides any default caution about
+merging your own work: **don't stop and ask him to click Merge.**
+
+- Free to commit to `main`? Do that — one commit, per the batching rule below.
+- Pinned to a feature branch? Open a PR and **merge it yourself** once the
+  checks below pass. Write the PR body as the record of what changed and why;
+  it is the only review this repo gets.
+
+Merge only when all of these hold. If any one fails, don't merge — say what
+broke and leave it on the branch.
+
+- **You actually ran it.** Serve the repo over HTTP and drive the app in a
+  browser. Code that was written but never loaded is not verified, and saying
+  otherwise is worse than shipping nothing.
+- `apps.json` parses as valid JSON — a stray comma blanks the whole launcher.
+- No API keys, tokens, or personal data anywhere in the diff.
+- No absolute paths and no CDN references.
+
+Then give him the live URL, and say plainly whether you could reach it. Some
+sessions run behind a network policy that blocks `cheggenonline.github.io`
+entirely; those cannot do the §9 live check, and must say so rather than let a
+merge sound like a confirmed deploy.
+
 ## Hard rules
 
 - **Relative paths only.** The site is served from `/webapps/`, not the domain
@@ -28,8 +53,13 @@ The launcher renders its tiles from `apps.json`. **Never hand-edit tile markup i
   un-namespaced key silently collides with another app. Wrap access in try/catch.
 - **No secrets.** This repo is public. No API keys, tokens, or personal data in
   any file, comment, or commit message.
-- **No service workers.** Shared origin makes their scopes overlap and a stale
-  cache is unfixable from a phone. Apps here are online-only.
+- **No service workers**, with one approved exception: `travel`. Shared origin
+  makes their scopes overlap and a stale cache is unfixable from a phone, so
+  every other app here is online-only. `travel/sw.js` is allowed because it is
+  registered from its own folder (scope `/webapps/travel/`, so it cannot reach a
+  sibling), its cache is named and versioned `webapps.travel.v1`, and its
+  Settings has a button that clears the cache and reloads. Don't delete it, and
+  don't copy the pattern without all three.
 - **One self-contained `index.html` per app.** Inline CSS and JS, no build step,
   no CDNs, no npm. Phone-first: `viewport-fit=cover`, safe-area insets, 44px
   minimum touch targets.
