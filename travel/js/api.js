@@ -195,17 +195,33 @@ export function downscaleImage(file) {
 /* ---------- the call ---------- */
 
 function friendlyError(status, body) {
-  const msg = String((body && body.error && body.error.message) || '').toLowerCase();
-  if (status === 401 || status === 403) return new ApiError('API-nøkkelen ble avvist. Sjekk den i Innstillinger.', 'auth');
-  if (status === 429) return new ApiError('For mange forespørsler akkurat nå. Prøv igjen om et minutt.', 'rate');
-  if (status === 400 && msg.includes('credit')) return new ApiError('Kontoen er tom for kreditt. Fyll på hos Anthropic og prøv igjen.', 'credit');
-  if (status === 400 && msg.includes('image')) return new ApiError('Bildet ble ikke godtatt. Prøv et mindre eller tydeligere bilde.', 'image');
-  if (status === 400) return new ApiError('Forespørselen ble avvist. Teksten er lagret, så ingenting er tapt.', 'request');
-  if (status === 404) return new ApiError('Modellen finnes ikke for denne nøkkelen. Velg en annen modell i Innstillinger.', 'model');
-  if (status === 413) return new ApiError('For mye innhold i ett opptak. Del det opp, eller send færre bilder.', 'size');
-  if (status === 529 || status === 503) return new ApiError('Tjenesten er overbelastet. Prøv igjen om litt.', 'overloaded');
-  if (status >= 500) return new ApiError('Noe gikk galt hos Anthropic. Prøv igjen om litt.', 'server');
-  return new ApiError('Uventet svar fra API-et. Teksten er lagret.', 'unknown');
+  const rawMessage = String((body && body.error && body.error.message) || '');
+  const rawType = String((body && body.error && body.error.type) || '');
+  const msg = rawMessage.toLowerCase();
+  /* Attach the API's own wording to every error. The friendly line is what the
+     screen shows; this is what makes a surprise diagnosable instead of a guess. */
+  const tag = (err) => {
+    err.status = status;
+    err.detail = [status, rawType, rawMessage].filter(Boolean).join(' · ');
+    return err;
+  };
+  return tag(pick());
+
+  function pick() {
+    if (status === 401 || status === 403) return new ApiError('API-nøkkelen ble avvist. Sjekk den i Innstillinger.', 'auth');
+    if (status === 429) return new ApiError('For mange forespørsler akkurat nå. Prøv igjen om et minutt.', 'rate');
+    if (status === 400 && msg.includes('credit')) return new ApiError('Kontoen er tom for kreditt. Fyll på hos Anthropic og prøv igjen.', 'credit');
+    if (status === 400 && msg.includes('image')) return new ApiError('Bildet ble ikke godtatt. Prøv et mindre eller tydeligere bilde.', 'image');
+    if (status === 400 && /not permitted|unexpected keyword|extra inputs|unrecognized/.test(msg)) {
+      return new ApiError('Appen sendte noe modellen ikke godtar — det er en feil i appen, ikke i teksten din. Trykk «Vis detaljer» og send dem videre.', 'params');
+    }
+    if (status === 400) return new ApiError('Forespørselen ble avvist. Teksten er lagret, så ingenting er tapt.', 'request');
+    if (status === 404) return new ApiError('Modellen finnes ikke for denne nøkkelen. Velg en annen modell i Innstillinger.', 'model');
+    if (status === 413) return new ApiError('For mye innhold i ett opptak. Del det opp, eller send færre bilder.', 'size');
+    if (status === 529 || status === 503) return new ApiError('Tjenesten er overbelastet. Prøv igjen om litt.', 'overloaded');
+    if (status >= 500) return new ApiError('Noe gikk galt hos Anthropic. Prøv igjen om litt.', 'server');
+    return new ApiError('Uventet svar fra API-et. Teksten er lagret.', 'unknown');
+  }
 }
 
 /* Resolves to { analysis, raw, repaired, usage }. Throws ApiError with a
@@ -238,10 +254,13 @@ export async function analyseCapture({ text, images = [], trip, library, model, 
         'anthropic-version': API_VERSION,
         'anthropic-dangerous-direct-browser-access': 'true'
       },
+      /* No `temperature`: sampling parameters were removed on the Claude 5 family
+         and the API rejects them with a 400. Thinking is adaptive by default,
+         which is what we want for the inference rules in SYSTEM — so max_tokens
+         has to leave room for thinking as well as the JSON. */
       body: JSON.stringify({
         model: model || state.settings.model,
-        max_tokens: 8000,
-        temperature: 0,
+        max_tokens: 16000,
         system: SYSTEM,
         messages: [{ role: 'user', content }]
       })
@@ -272,4 +291,37 @@ export async function analyseCapture({ text, images = [], trip, library, model, 
     truncated: payload.stop_reason === 'max_tokens',
     usage: payload.usage || null
   };
+}
+
+/* Settings' "Test tilkobling". Validates the key, the chosen model and the exact
+   parameter set this app sends, in one small call. */
+export async function testConnection(model) {
+  const key = getApiKey();
+  if (!key) throw new ApiError('Ingen API-nøkkel lagret.', 'nokey');
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': API_VERSION,
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: model || state.settings.model,
+        max_tokens: 16,
+        messages: [{ role: 'user', content: 'Svar med ordet OK.' }]
+      })
+    });
+  } catch (e) {
+    throw new ApiError('Fikk ikke kontakt med api.anthropic.com.', 'offline');
+  }
+  if (!res.ok) {
+    let payload = null;
+    try { payload = await res.json(); } catch (e) { /* body may not be JSON */ }
+    throw friendlyError(res.status, payload);
+  }
+  const data = await res.json();
+  return { model: data.model || model, usage: data.usage || null };
 }

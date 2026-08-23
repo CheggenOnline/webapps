@@ -1,9 +1,10 @@
 /* Settings — API key, model, packing groups, backup, cache. */
 
-import { h, svg, ICON, toast, openSheet, confirmSheet, downloadText, pickFile } from '../dom.js';
+import { h, svg, ICON, toast, openSheet, confirmSheet, downloadText, pickFile, errorSheet } from '../dom.js';
 import { state, setSetting, getApiKey, setApiKey, exportBackup, importBackup, wipeAll, storageFailed } from '../store.js';
 import { MODELS, CACHE_VERSION, APP_ID, KEY_STORE } from '../config.js';
 import { openGroupEditor } from './groups.js';
+import { testConnection, ApiError } from '../api.js';
 
 function block(title, ...children) {
   return h('div', { class: 'card' },
@@ -49,7 +50,29 @@ export function openSettings(ctx) {
               rerender();
             }
           }),
-          show),
+          show,
+          h('button', {
+            type: 'button', class: 'btn ghost sm', text: 'Test tilkobling', onClick: async (e) => {
+              const btn = e.currentTarget;
+              const was = btn.textContent;
+              btn.textContent = 'Tester …';
+              btn.disabled = true;
+              try {
+                const r = await testConnection(state.settings.model);
+                toast(`Virker — svarte som ${r.model}`);
+              } catch (err) {
+                errorSheet({
+                  title: 'Tilkoblingen feilet',
+                  message: err instanceof ApiError ? err.message : 'Fikk ikke svar.',
+                  detail: err && err.detail ? err.detail : null,
+                  hint: 'Sjekk nøkkelen og valgt modell. Ingen data er sendt utover denne testen.'
+                });
+              } finally {
+                btn.textContent = was;
+                btn.disabled = false;
+              }
+            }
+          })),
         h('p', { class: 'sub', style: 'margin-top:10px', text: 'Nøkkelen sendes bare til api.anthropic.com, aldri noe annet sted. Den ligger ukryptert på telefonen.' })));
 
       /* --- model --- */

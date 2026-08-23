@@ -170,6 +170,33 @@ export function promptSheet({ title, label, value = '', placeholder = '', multil
   });
 }
 
+/* An error the user can act on, or forward. `detail` is the API's own wording —
+   a friendly sentence alone leaves you guessing at what actually broke. */
+export function errorSheet({ title = 'Det gikk ikke', message, detail, hint }) {
+  openSheet({
+    title,
+    build: (body, close) => {
+      body.appendChild(h('p', { style: 'margin:0 0 12px', text: message }));
+      if (hint) body.appendChild(h('p', { class: 'sub', text: hint }));
+      if (detail) {
+        const box = h('div', { class: 'notice', style: 'font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;display:none', text: detail });
+        const toggle = h('button', {
+          type: 'button', class: 'btn quiet wide', text: 'Vis detaljer', onClick: () => {
+            const shown = box.style.display !== 'none';
+            box.style.display = shown ? 'none' : 'block';
+            toggle.textContent = shown ? 'Vis detaljer' : 'Skjul detaljer';
+          }
+        });
+        body.append(toggle, box, h('button', {
+          type: 'button', class: 'btn quiet wide', style: 'margin-top:8px', text: 'Kopier detaljene',
+          onClick: async () => { toast(await copyText(detail) ? 'Kopiert' : 'Klarte ikke å kopiere'); }
+        }));
+      }
+      body.appendChild(h('button', { type: 'button', class: 'btn wide', style: 'margin-top:14px', text: 'Lukk', onClick: () => close() }));
+    }
+  });
+}
+
 /* ---------- misc ---------- */
 
 export async function copyText(value) {

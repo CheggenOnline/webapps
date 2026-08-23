@@ -2,7 +2,7 @@
    The text area takes dictation from the phone keyboard; there is deliberately
    no voice recording and no speech recognition in this app. */
 
-import { h, svg, ICON, toast, pickFile, confirmSheet, iconBtn } from '../dom.js';
+import { h, svg, ICON, toast, pickFile, confirmSheet, iconBtn, errorSheet } from '../dom.js';
 import { state, commit, setSetting, getApiKey } from '../store.js';
 import { newCapture } from '../model.js';
 import { analyseCapture, downscaleImage, ApiError } from '../api.js';
@@ -104,9 +104,8 @@ export function renderCapture(main, trip, ctx) {
       });
     } catch (err) {
       busy = false;
-      const msg = err instanceof ApiError ? err.message : 'Noe gikk galt. Opptaket er lagret.';
-      toast(msg, true);
       rerender();
+      reportFailure(err);
     }
   };
 
@@ -150,8 +149,8 @@ export function renderCapture(main, trip, ctx) {
               });
             } catch (err) {
               busy = false;
-              toast(err instanceof ApiError ? err.message : 'Analysen feilet', true);
               rerender();
+              reportFailure(err);
             }
           }
         }),
@@ -169,6 +168,23 @@ export function renderCapture(main, trip, ctx) {
   if (analysed.length) {
     main.appendChild(h('p', { class: 'hint', style: 'margin-top:14px', text: `${analysed.length} tidligere opptak i denne turen.` }));
   }
+}
+
+/* The capture is already saved by this point, so a failure costs nothing but a
+   retry. Transient failures get a toast and stay out of the way; the ones that
+   need a decision or need forwarding get the sheet, with the API's own wording. */
+const TRANSIENT = ['rate', 'overloaded', 'server', 'offline', 'abort'];
+
+function reportFailure(err) {
+  const message = err instanceof ApiError ? err.message : 'Noe gikk galt under analysen.';
+  const kind = err && err.kind ? err.kind : 'unknown';
+  if (TRANSIENT.includes(kind)) { toast(message, true); return; }
+  errorSheet({
+    title: 'Analysen feilet',
+    message,
+    detail: err && err.detail ? err.detail : null,
+    hint: 'Teksten ligger lagret under «Ikke analysert», så ingenting er tapt. Prøv igjen når feilen er rettet.'
+  });
 }
 
 export function captureBusy() { return busy; }
