@@ -115,6 +115,13 @@ online-only.
 
 If offline support is genuinely needed for one app, it gets its own repo instead.
 
+**Approved exception: `travel`.** It registers `travel/sw.js`, so its scope is
+`/webapps/travel/` and cannot reach a sibling app. Its cache is named
+`webapps.travel.<version>`, the version is bumped on every deploy, and Settings
+shows it with a button that clears the cache and reloads — so a stale cache is
+fixable from the phone. Do not remove it, and do not copy the pattern into
+another app without the same scoping and escape hatch.
+
 ## 6. One self-contained file per app
 
 Default to a single `index.html` with inline CSS and JS. No build step, no
