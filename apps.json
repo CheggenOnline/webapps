@@ -1,7 +1,20 @@
 {
   "registryVersion": 1,
-  "updated": "2026-08-22",
+  "updated": "2026-08-23",
   "apps": [
+    {
+      "slug": "travel",
+      "name": "Travel",
+      "tagline": "Dump rotete tekst inn, få tidslinje og lister ut",
+      "icon": "📥",
+      "accent": "#6ea8fe",
+      "location": "local",
+      "url": "./travel/",
+      "repo": "CheggenOnline/webapps",
+      "lang": "no",
+      "tags": ["reise", "planlegging"],
+      "added": "2026-08-23"
+    },
     {
       "slug": "dyreparken-kart",
       "name": "Dyreparken",
