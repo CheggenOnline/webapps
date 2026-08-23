@@ -106,14 +106,26 @@ export function openSheet({ title, build, full = false, onClose, leftBtn }) {
     syncHost();
     if (onClose) onClose(result);
   };
-  const rerender = () => { clear(bodyEl); build(bodyEl, close, rerender); };
+  /* A form's action bar belongs to the sheet, not to the scrolling body: kept
+     outside it, Save and Cancel are reachable without scrolling a long form and
+     can never end up under the home indicator. Call sites still just append a
+     .form-foot as the last thing they build; it gets moved here. */
+  const footEl = h('div', { class: 'sheet-foot', hidden: true });
+  const rerender = () => {
+    clear(bodyEl);
+    clear(footEl);
+    build(bodyEl, close, rerender);
+    const foot = bodyEl.querySelector(':scope > .form-foot:last-child');
+    if (foot) { foot.remove(); footEl.appendChild(foot); }
+    footEl.hidden = !footEl.childElementCount;
+  };
 
   const head = h('div', { class: 'sheet-head' },
     leftBtn || null,
     h('h2', { text: title }),
     iconBtn('close', 'Lukk', () => close())
   );
-  entry.el = h('div', { class: 'sheet' + (full ? ' full' : ''), role: 'dialog', 'aria-modal': 'true' }, head, bodyEl);
+  entry.el = h('div', { class: 'sheet' + (full ? ' full' : ''), role: 'dialog', 'aria-modal': 'true' }, head, bodyEl, footEl);
   entry.close = close;
   stack.push(entry);
   syncHost();

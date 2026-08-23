@@ -120,10 +120,12 @@ function renderStrip() {
       stripMore.appendChild(b);
     });
   }
-  /* Main is padded from behind the fixed strip; expanded it grows, so measure. */
+  /* Main sits behind the fixed strip, which grows when expanded. Publish the
+     measured height and let the stylesheet do the arithmetic — duplicating the
+     safe-area calc here is how the header and the strip drift out of sync. */
   requestAnimationFrame(() => {
     const el = document.getElementById('strip');
-    if (el) screenEl.style.paddingTop = `calc(env(safe-area-inset-top) + var(--hdr-h) + ${el.offsetHeight}px + 8px)`;
+    if (el) document.documentElement.style.setProperty('--strip-total', el.offsetHeight + 'px');
   });
 }
 

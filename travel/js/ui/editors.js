@@ -128,8 +128,10 @@ export function editEvent(trip, existing, onDone) {
             }
           }, svg(ICON.trash, 16), ' Slett')));
       }
-      body.appendChild(footer(save, close));
+      /* Secondary actions above; the footer must stay last because it is the
+         sticky bar pinned to the bottom of the sheet. */
       extras.forEach((x) => body.appendChild(x));
+      body.appendChild(footer(save, close));
       setTimeout(() => { if (isNew) title.focus(); }, 60);
     }
   });
@@ -205,8 +207,6 @@ export function editEntry(trip, list, existing, onDone) {
         if (onDone) onDone(en);
       };
 
-      body.appendChild(footer(save, close));
-
       if (!isNew) {
         body.appendChild(h('div', { class: 'btn-row', style: 'margin-top:14px' },
           en.due ? h('button', {
@@ -225,6 +225,7 @@ export function editEntry(trip, list, existing, onDone) {
             }
           }, svg(ICON.trash, 16), ' Slett')));
       }
+      body.appendChild(footer(save, close));
       setTimeout(() => { if (isNew) text.focus(); }, 60);
     }
   });
@@ -290,8 +291,6 @@ export function editList(trip, existing, onDone) {
         close();
         if (onDone) onDone(list);
       };
-      body.appendChild(footer(save, close));
-
       if (!isNew) {
         body.appendChild(h('div', { class: 'btn-row', style: 'margin-top:14px' },
           h('button', {
@@ -311,6 +310,7 @@ export function editList(trip, existing, onDone) {
             }
           }, svg(ICON.trash, 16), ' Slett')));
       }
+      body.appendChild(footer(save, close));
       setTimeout(() => { if (isNew) title.focus(); }, 60);
     }
   });
@@ -360,8 +360,6 @@ export function editVault(trip, existing, onDone, presetKind) {
         close();
         if (onDone) onDone(v);
       };
-      body.appendChild(footer(save, close));
-
       if (!isNew) {
         body.appendChild(h('div', { class: 'btn-row', style: 'margin-top:14px' },
           h('button', {
@@ -373,6 +371,7 @@ export function editVault(trip, existing, onDone, presetKind) {
             }
           }, svg(ICON.trash, 16), ' Slett')));
       }
+      body.appendChild(footer(save, close));
       setTimeout(() => { if (isNew) label.focus(); }, 60);
     }
   });
@@ -419,8 +418,6 @@ export function editTrip(existing, onDone) {
           if (onDone) onDone(existing);
         }
       };
-      body.appendChild(footer(save, close));
-
       if (!isNew) {
         body.appendChild(h('div', { class: 'btn-row', style: 'margin-top:14px' },
           h('button', {
@@ -442,6 +439,7 @@ export function editTrip(existing, onDone) {
             }
           }, svg(ICON.trash, 16), ' Slett')));
       }
+      body.appendChild(footer(save, close));
       setTimeout(() => { if (isNew) name.focus(); }, 60);
     }
   });
