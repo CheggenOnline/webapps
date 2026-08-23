@@ -10,7 +10,7 @@ export const KEY_STORE = 'webapps.shared.anthropicKey';
 
 /* Bump on every deploy, or installed users keep serving the old files.
    Must match CACHE_VERSION in ../sw.js. */
-export const CACHE_VERSION = 'v1';
+export const CACHE_VERSION = 'v2';
 
 export const MODELS = [
   { id: 'claude-sonnet-5', label: 'Sonnet 5 — standard' },
