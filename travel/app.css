@@ -6,8 +6,11 @@
   --bg: #0b0e14;
   --surface: #151a25;
   --surface-2: #1d2331;
-  --line: #262d3d;
-  --line-soft: #1e2432;
+  --line: #313b52;
+  --line-soft: #36405a;
+  /* The empty checkbox needs to read as an affordance on its own, so it gets a
+     brighter border than the surrounding hairlines. */
+  --tick-line: #626e91;
   --text: #e9edf5;
   --muted: #8d97ad;
   --faint: #667089;
@@ -34,8 +37,9 @@
     --bg: #f4f6fb;
     --surface: #ffffff;
     --surface-2: #eef1f7;
-    --line: #dde2ec;
-    --line-soft: #e8ebf2;
+    --line: #ced5e2;
+    --line-soft: #d6dce8;
+    --tick-line: #868fa6;
     --text: #141824;
     --muted: #5d6577;
     --faint: #838b9c;
@@ -209,7 +213,7 @@ main:focus { outline: none; }
 .tick {
   flex: none; width: 26px; height: 26px; margin-top: -1px;
   display: grid; place-items: center;
-  background: none; border: 1.5px solid var(--line); border-radius: 8px;
+  background: none; border: 2px solid var(--tick-line); border-radius: 8px;
   color: transparent;
 }
 .tick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
