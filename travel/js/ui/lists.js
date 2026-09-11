@@ -5,6 +5,7 @@ import { commit } from '../store.js';
 import { newEntry } from '../model.js';
 import { depIndex, blockersOf, listGroups, formatWhen, hasTime, parseLocal } from '../derive.js';
 import { editList, editEntry, editPeople } from './editors.js';
+import { openTemplatePicker } from './templates.js';
 
 function entryRow(trip, list, en, index, rerender) {
   const blockers = blockersOf(en, index);
@@ -122,10 +123,13 @@ export function renderLists(main, trip, ctx) {
   const index = depIndex(trip);
   const rerender = ctx.rerender;
 
+  const addFromTemplate = () => openTemplatePicker(trip, (listId) => ctx.go('lists', listId ? 'list:' + listId : ''));
+
   main.appendChild(h('div', { class: 'screen-head' },
     h('h1', { text: 'Lister' }),
     iconBtn('search', 'Søk i turen', () => ctx.openSearch()),
     iconBtn('gear', 'Folk på turen', () => editPeople(trip, rerender)),
+    iconBtn('archive', 'Legg til standardliste', addFromTemplate),
     iconBtn('plus', 'Ny liste', () => editList(trip, null, rerender))
   ));
 
@@ -134,14 +138,19 @@ export function renderLists(main, trip, ctx) {
   if (!groups.length) {
     main.appendChild(h('div', { class: 'empty' },
       h('strong', { text: 'Ingen lister ennå' }),
-      h('p', { text: 'Dump inn det du skal huske i Fang opp — appen deler det i lister. Eller lag en tom liste selv.' }),
+      h('p', { text: 'Dump inn det du skal huske i Fang opp — appen deler det i lister. Eller start fra en ferdig standardliste, eller lag en tom liste selv.' }),
       h('div', { class: 'btn-row', style: 'justify-content:center' },
         h('button', { type: 'button', class: 'btn', text: 'Fang opp', onClick: () => ctx.go('capture') }),
+        h('button', { type: 'button', class: 'btn ghost', text: 'Standardliste', onClick: addFromTemplate }),
         h('button', { type: 'button', class: 'btn ghost', text: 'Ny liste', onClick: () => editList(trip, null, rerender) }))));
     return;
   }
 
   groups.forEach((g) => main.appendChild(groupCard(trip, g, index, rerender)));
+
+  main.appendChild(h('button', {
+    type: 'button', class: 'btn ghost wide', style: 'margin-top:4px', onClick: addFromTemplate
+  }, svg(ICON.archive, 18), ' Legg til fra standardliste'));
 
   const archived = trip.lists.filter((l) => l.archived);
   if (archived.length) {

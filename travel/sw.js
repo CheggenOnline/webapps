@@ -7,7 +7,7 @@
    CACHE_VERSION must match ../travel/js/config.js and must be bumped on every
    deploy, or installed users keep serving the old files. */
 
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE = `webapps.travel.${CACHE_VERSION}`;
 const CACHE_PREFIX = 'webapps.travel.';
 
@@ -32,6 +32,7 @@ const ASSETS = [
   './js/ui/vault.js',
   './js/ui/suggestions.js',
   './js/ui/groups.js',
+  './js/ui/templates.js',
   './js/ui/settings.js',
   './js/ui/editors.js'
 ];
