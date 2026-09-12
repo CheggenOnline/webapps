@@ -8,7 +8,8 @@ import {
   countdown, countUndated
 } from '../derive.js';
 import { editEvent, editEntry } from './editors.js';
-import { icsForTrip, downloadICS, slugify } from '../ics.js';
+import { exportSelection } from '../ics.js';
+import { openCalendarExport } from './calendar.js';
 
 function tags(item, index) {
   const out = [];
@@ -73,12 +74,7 @@ export function renderTimeline(main, trip, ctx) {
   main.appendChild(h('div', { class: 'screen-head' },
     h('h1', { text: 'Tidslinje' }),
     iconBtn('search', 'Søk i turen', () => ctx.openSearch()),
-    iconBtn('cal', 'Eksporter turen til kalender', () => {
-      const { ics, count } = icsForTrip(trip);
-      if (!count) { toast('Ingenting med tid å eksportere ennå', true); return; }
-      downloadICS(`${slugify(trip.name)}.ics`, ics);
-      toast(`${count} oppføringer lastet ned`);
-    }),
+    iconBtn('cal', 'Legg tidslinjen i kalenderen', () => openCalendarExport(trip)),
     iconBtn('plus', 'Ny hendelse', () => editEvent(trip, null, rerender))
   ));
 
@@ -125,10 +121,18 @@ export function renderTimeline(main, trip, ctx) {
     main.appendChild(card);
   });
 
+  /* The icon in the header is easy to miss, and this is the one action that
+     gets the plan out of the app — so it is also spelled out under the days. */
+  const exportable = exportSelection(trip, { includeDone: false }).total;
+  main.appendChild(h('button', {
+    type: 'button', class: 'btn ghost wide', style: 'margin-top:14px',
+    onClick: () => openCalendarExport(trip)
+  }, svg(ICON.cal, 18), exportable ? ` Legg ${exportable} oppføringer i kalenderen` : ' Legg tidslinjen i kalenderen'));
+
   const undated = countUndated(trip);
   if (undated) {
     main.appendChild(h('button', {
-      type: 'button', class: 'btn quiet wide', style: 'margin-top:14px',
+      type: 'button', class: 'btn quiet wide', style: 'margin-top:8px',
       text: `${undated} ting uten dato — i Lister`,
       onClick: () => ctx.go('lists')
     }));
