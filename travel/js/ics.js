@@ -123,16 +123,44 @@ export function icsForEntry(entry, list, tripName) {
   return wrap(entryLines(entry, list, stampUTC(), tripName));
 }
 
-/* Whole trip: every event, plus every entry that has a due. */
-export function icsForTrip(trip) {
+/* What a whole-trip export would contain: every event, plus every entry that has
+   a due. Options narrow it. The picker counts with this and icsForTrip builds
+   from the same selection, so what it says is what the file gets. */
+export function exportSelection(trip, opts = {}) {
+  const o = { events: true, entries: true, includeDone: true, fromNow: false, ...opts };
+  const now = new Date();
+  const floor = o.fromNow ? new Date(now.getFullYear(), now.getMonth(), now.getDate()) : null;
+  /* Something without a parseable time produces no VEVENT, so it is not in the
+     selection either — an undated line lives in Lists, not in a calendar. */
+  const keep = (value) => {
+    const d = parseLocal(value);
+    return !!d && (!floor || d >= floor);
+  };
+
+  const events = o.events
+    ? (trip?.events || []).filter((ev) => keep(ev.start) && (o.includeDone || !ev.done))
+    : [];
+
+  const entries = [];
+  if (o.entries) {
+    (trip?.lists || []).forEach((l) => {
+      if (l.archived) return;
+      l.entries.forEach((en) => {
+        if (keep(en.due) && (o.includeDone || !en.done)) entries.push({ entry: en, list: l });
+      });
+    });
+  }
+
+  return { events, entries, total: events.length + entries.length };
+}
+
+export function icsForTrip(trip, opts) {
   const stamp = stampUTC();
+  const sel = exportSelection(trip, opts);
   const lines = [];
-  (trip.events || []).forEach((ev) => lines.push(...eventLines(ev, stamp, trip.name)));
-  (trip.lists || []).forEach((l) => {
-    if (l.archived) return;
-    l.entries.forEach((en) => lines.push(...entryLines(en, l, stamp, trip.name)));
-  });
-  return { ics: wrap(lines), count: lines.filter((l) => l === 'BEGIN:VEVENT').length };
+  sel.events.forEach((ev) => lines.push(...eventLines(ev, stamp, trip.name)));
+  sel.entries.forEach(({ entry, list }) => lines.push(...entryLines(entry, list, stamp, trip.name)));
+  return { ics: wrap(lines), count: sel.total };
 }
 
 export function slugify(s) {

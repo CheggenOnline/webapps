@@ -12,6 +12,7 @@ import { renderSuggestions } from './ui/suggestions.js';
 import { openSettings } from './ui/settings.js';
 import { editTrip, editPeople } from './ui/editors.js';
 import { offerSaveGroup } from './ui/groups.js';
+import { openCalendarExport } from './ui/calendar.js';
 
 const screenEl = document.getElementById('screen');
 const navEl = document.getElementById('nav');
@@ -185,6 +186,9 @@ function openTripMenu() {
         body.appendChild(h('button', {
           type: 'button', class: 'menu-item', onClick: () => { close(); editPeople(trip, () => render()); }
         }, svg(ICON.gear, 18), h('span', { text: 'Folk på turen' })));
+        body.appendChild(h('button', {
+          type: 'button', class: 'menu-item', onClick: () => { close(); openCalendarExport(trip); }
+        }, svg(ICON.cal, 18), h('span', { text: 'Legg tidslinjen i kalenderen' })));
         body.appendChild(h('button', {
           type: 'button', class: 'menu-item', onClick: () => { close(); openSearch(); }
         }, svg(ICON.search, 18), h('span', { text: 'Søk i turen' })));
